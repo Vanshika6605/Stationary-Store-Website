@@ -20,16 +20,16 @@ const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(validatedData.password, salt);
 
-    // 4. Create the normal user in the database
+    // 4. Create the user in the database with selected or default role
     const newUser = await prisma.user.create({
       data: {
         name: validatedData.name,
         email: validatedData.email,
         password: hashedPassword,
         address: validatedData.address,
-        role: 'NORMAL' // Default role for public signups
+        role: validatedData.role || 'NORMAL'
       },
-      select: { id: true, name: true, email: true, role: true } // Don't return the password!
+      select: { id: true, name: true, email: true, role: true }
     });
 
     res.status(201).json({ message: 'User registered successfully', user: newUser });
@@ -37,7 +37,8 @@ const register = async (req, res) => {
     if (error.name === 'ZodError') {
       return res.status(400).json({ errors: error.errors.map(e => e.message) });
     }
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Register error:', error);
+    res.status(500).json({ error: error.message || 'Internal server error' });
   }
 };
 
@@ -73,7 +74,8 @@ const login = async (req, res) => {
     if (error.name === 'ZodError') {
       return res.status(400).json({ errors: error.errors.map(e => e.message) });
     }
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Login error:', error);
+    res.status(500).json({ error: error.message || 'Internal server error' });
   }
 };
 
