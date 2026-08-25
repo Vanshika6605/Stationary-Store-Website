@@ -1,6 +1,6 @@
 const { z } = require('zod');
 
-// Enforces the strict rules from the challenge requirements
+// Enforces strict rules: Public signup allows NORMAL or STORE_OWNER
 const registerSchema = z.object({
   name: z.string()
     .min(20, 'Name must be at least 20 characters')
@@ -13,7 +13,8 @@ const registerSchema = z.object({
     .min(8, 'Password must be at least 8 characters')
     .max(16, 'Password cannot exceed 16 characters')
     .regex(/[A-Z]/, 'Password must include at least one uppercase letter')
-    .regex(/[^A-Za-z0-9]/, 'Password must include at least one special character')
+    .regex(/[^A-Za-z0-9]/, 'Password must include at least one special character'),
+  role: z.enum(['NORMAL', 'STORE_OWNER']).optional().default('NORMAL')
 });
 
 const loginSchema = z.object({
